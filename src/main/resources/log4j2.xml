@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
+        <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="notification" password="sDmP7vrBp5FALtI";</Property>
+        <Property name="kafka.topic.audit">log.audit</Property>
+        <Property name="kafka.topic.error">log.error</Property>
+        <Property name="kafka.topic.app">log.app</Property>
+    </Properties>
+
+
+
+    <!-- Log4J2 JSONLayout objectMessageAsJsonObject not exposed through SLF4j 10/2020 -->
+    <Appenders>
+        <!-- Kafka Audit Appender only forwards messages with the "AuditRecord" marker -->
+        <!-- We put only the message here assuming it will be formatted json-->
+        <Kafka name="kafkaAuditAppender"  topic="${kafka.topic.audit}">
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true">
+                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+            </JsonTemplateLayout>
+
+            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
+<!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
+            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
+
+            <Property name="sasl.mechanism">PLAIN</Property>
+            <Property name="security.protocol">SASL_PLAINTEXT</Property>
+            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="ACCEPT" onMismatch="DENY"/>-->
+        </Kafka>
+
+        <Kafka name="kafkaLogAppender" topic="${kafka.topic.app}">
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true" >
+                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+            </JsonTemplateLayout>
+
+            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
+<!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required  username="notification" password="sDmP7vrBp5FALtI";</Property>-->
+            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
+            <Property name="sasl.mechanism">PLAIN</Property>
+            <Property name="security.protocol">SASL_PLAINTEXT</Property>
+            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>-->
+        </Kafka>
+
+        <Kafka name="kafkaErrorAppender" topic="${kafka.topic.error}"  includeLocation="true">
+            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true" >
+                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+            </JsonTemplateLayout>
+            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
+<!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
+            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
+            <Property name="sasl.mechanism">PLAIN</Property>
+            <Property name="security.protocol">SASL_PLAINTEXT</Property>
+            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>-->
+        </Kafka>
+
+        <Console name="stdout" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} stdout %highlight{%-5p} [%-7t] %F:%L - %m%n"/>
+            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>
+        </Console>
+
+        <Console name="stderr" target="SYSTEM_ERR">
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} %highlight{stderr} %highlight{%-5p} [%-7t] %F:%L - %m%n"/>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" />
+                <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>
+            </Filters>
+        </Console>
+
+    </Appenders>
+    <Loggers>
+        <Root level="INFO" locationInfoEnabled="true">
+            <AppenderRef ref="kafkaLogAppender"/>
+            <!--stdout/stderr included for testing Oozie log4j edits-->
+            <AppenderRef ref="stdout"/>
+        </Root>
+
+
+        <!-- Do not let org.apache.kafka log to a Kafka appender on DEBUG level. That will cause recursive logging -->
+        <Logger name="org.springframework.web" level="debug" >
+            <AppenderRef ref="kafkaAuditAppender"/>
+        </Logger>
+
+        <Logger name="com.example.project_template" level="error" >
+            <AppenderRef ref="kafkaErrorAppender"/>
+            <AppenderRef ref="stderr"/>
+        </Logger>
+
+    </Loggers>
+
+</Configuration>
