@@ -74,15 +74,14 @@
             <AppenderRef ref="stdout"/>
         </Root>
 
-
-        <!-- Do not let org.apache.kafka log to a Kafka appender on DEBUG level. That will cause recursive logging -->
-        <Logger name="org.springframework.web" level="debug" >
-            <AppenderRef ref="kafkaAuditAppender"/>
-        </Logger>
-
         <Logger name="com.example.project_template" level="error" >
             <AppenderRef ref="kafkaErrorAppender"/>
             <AppenderRef ref="stderr"/>
+        </Logger>
+
+        <Logger name="com.kss" level="trace" >
+            <AppenderRef ref="kafkaAuditAppender"/>
+            <AppenderRef ref="stdout"/>
         </Logger>
 
     </Loggers>

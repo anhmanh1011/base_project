@@ -1,5 +1,6 @@
 package com.example.project_template.controller;
 
+import com.kss.autoconfigure.common.ResponseData;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Log4j2
 public class controller {
     @GetMapping("/test")
-    public ResponseEntity get() {
+    public ResponseData get() {
         try {
             log.info("day la log info");
             log.error("day la log error");
@@ -19,7 +20,7 @@ public class controller {
             log.error(ex);
             log.error("loi o day",ex);
         }
-        return ResponseEntity.ok(null);
+        return new ResponseData();
 
     }
 }
