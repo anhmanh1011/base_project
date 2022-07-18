@@ -7,7 +7,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-
 kss:
   enable:
     swagger: true

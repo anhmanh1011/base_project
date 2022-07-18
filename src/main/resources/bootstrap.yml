@@ -1,0 +1,15 @@
+spring:
+  application: 
+    name: base_project
+  profiles:
+    active: cloud_uat
+  cloud:
+    config:
+      enabled: true
+      uri: https://configdev.kss.com.vn
+      #label : develop
+      request-read-timeout: 10000
+      username: admin
+      password: admin@123
+logs:
+  path: /var/log/${spring.application.name}

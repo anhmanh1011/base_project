@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Log4j2
 public class controller {
-    @GetMapping("/test")
+    @GetMapping("/e/test")
     public ResponseData get() {
         try {
             log.info("day la log info");
