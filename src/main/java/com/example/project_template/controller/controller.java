@@ -13,11 +13,8 @@ public class controller {
     public ResponseData get() {
         try {
             log.info("day la log info");
-            log.error("day la log error");
             throw new Exception("abc");
         } catch (Exception ex) {
-            log.info(ex);
-            log.error(ex);
             log.error("loi o day",ex);
         }
         return new ResponseData();

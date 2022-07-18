@@ -1,6 +1,8 @@
 spring:
   application:
     name: base_project
+  main:
+    allow-circular-references: true
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
@@ -13,14 +15,22 @@ kss:
     title: day la tittle
     body: day la body
     desc: desc
-    email: manh.dd@kss.com.vn
+    email: kss_dev@kss.com.vn
     license: 1.0
     version: 1.0
-    git-url: git@123
+    git-url: git_kss@gitlab
     contract:
-      url: 3123123
-      name: 3123123
-      email: 2131312
-logging:
-  level:
-    root: info
+      url: git_profile_dev@github.com
+      name: dev_name
+      email: email_devname
+
+management:
+  endpoint:
+    prometheus:
+      enabled: true
+    metrics:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true

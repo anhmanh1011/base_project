@@ -2,10 +2,18 @@
 <Configuration>
     <Properties>
         <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
-        <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="notification" password="sDmP7vrBp5FALtI";</Property>
+        <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
+
+        <Property name="sasl.mechanism">PLAIN</Property>
+        <Property name="security.protocol">SASL_PLAINTEXT</Property>
+
         <Property name="kafka.topic.audit">log.audit</Property>
         <Property name="kafka.topic.error">log.error</Property>
         <Property name="kafka.topic.app">log.app</Property>
+
+<!--        <Property  name="app.name" >base_project</Property>-->
+        <property name="app.name">base_project</property>
+
     </Properties>
 
 
@@ -15,73 +23,90 @@
         <!-- Kafka Audit Appender only forwards messages with the "AuditRecord" marker -->
         <!-- We put only the message here assuming it will be formatted json-->
         <Kafka name="kafkaAuditAppender"  topic="${kafka.topic.audit}">
-            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true">
-                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+            <JsonTemplateLayout name="json_template" eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true">
+                <EventTemplateAdditionalField key="_serviceName" value="${app.name}"/>
             </JsonTemplateLayout>
 
-            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
+            <Property name="bootstrap.servers">${bootstrap.servers}</Property>
 <!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
-            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
+            <Property name="sasl.jaas.config">${sasl.jaas.config}</Property>
 
-            <Property name="sasl.mechanism">PLAIN</Property>
-            <Property name="security.protocol">SASL_PLAINTEXT</Property>
-            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="ACCEPT" onMismatch="DENY"/>-->
+            <Property name="sasl.mechanism">${sasl.mechanism}</Property>
+            <Property name="security.protocol">${security.protocol}</Property>
+
+            <Filters>
+                <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
         </Kafka>
 
         <Kafka name="kafkaLogAppender" topic="${kafka.topic.app}">
-            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true" >
-                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+            <JsonTemplateLayout name="json_template" eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true">
+                <EventTemplateAdditionalField key="_serviceName" value="${app.name}"/>
             </JsonTemplateLayout>
 
-            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
-<!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required  username="notification" password="sDmP7vrBp5FALtI";</Property>-->
-            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
-            <Property name="sasl.mechanism">PLAIN</Property>
-            <Property name="security.protocol">SASL_PLAINTEXT</Property>
-            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>-->
+            <Property name="bootstrap.servers">${bootstrap.servers}</Property>
+            <!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
+            <Property name="sasl.jaas.config">${sasl.jaas.config}</Property>
+
+            <Property name="sasl.mechanism">${sasl.mechanism}</Property>
+            <Property name="security.protocol">${security.protocol}</Property>
+
+            <Filters>
+                <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY" />
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+                <ThresholdFilter level="warn" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
         </Kafka>
 
-        <Kafka name="kafkaErrorAppender" topic="${kafka.topic.error}"  includeLocation="true">
-            <JsonTemplateLayout eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true" >
-                <EventTemplateAdditionalField key="_serviceName" value="auth-service"/>
+        <Kafka name="kafkaErrorAppender" topic="${kafka.topic.error}" >
+            <JsonTemplateLayout name="json_template" eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json" locationInfoEnabled="true">
+                <EventTemplateAdditionalField key="_serviceName" value="${app.name}"/>
             </JsonTemplateLayout>
-            <Property name="bootstrap.servers">10.199.100.8:9092 , 10.199.100.9:9092 , 10.199.100.10:9092</Property>
-<!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
-            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="logapp" password="k99gofkncty3j8pj";</Property>
-            <Property name="sasl.mechanism">PLAIN</Property>
-            <Property name="security.protocol">SASL_PLAINTEXT</Property>
-            <!--            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>-->
+            <Property name="bootstrap.servers">${bootstrap.servers}</Property>
+            <!--            <Property name="sasl.jaas.config">org.apache.kafka.common.security.plain.PlainLoginModule required username="user_logapp" password="k99gofkncty3j8pj";</Property>-->
+            <Property name="sasl.jaas.config">${sasl.jaas.config}</Property>
+
+            <Property name="sasl.mechanism">${sasl.mechanism}</Property>
+            <Property name="security.protocol">${security.protocol}</Property>
+
+            <Filters>
+                <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY" />
+            </Filters>
         </Kafka>
 
         <Console name="stdout" target="SYSTEM_OUT">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} stdout %highlight{%-5p} [%-7t] %F:%L - %m%n"/>
-            <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>
+                <PatternLayout
+                        pattern="%style{%d{ISO8601}}{black} %highlight{%-5level }[%style{%t}{bright,blue}] %style{%C{1.}}{bright,yellow}: %msg%n%throwable" />
         </Console>
 
-        <Console name="stderr" target="SYSTEM_ERR">
-            <PatternLayout pattern="%d{HH:mm:ss.SSS} %highlight{stderr} %highlight{%-5p} [%-7t] %F:%L - %m%n"/>
-            <Filters>
-                <ThresholdFilter level="WARN" onMatch="ACCEPT" />
-                <MarkerFilter marker="${audit.logmarker}" onMatch="DENY" onMismatch="ACCEPT"/>
-            </Filters>
-        </Console>
+        <RollingFile name="RollingFile"
+                     fileName="./logs/${app.name}.log"
+                     filePattern="./logs/$${date:yyyy-MM}/$${app.name}-%d{-dd-MMMM-yyyy}-%i.log.gz">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <!-- rollover on startup, daily and when the file reaches
+                    10 MegaBytes -->
+                <OnStartupTriggeringPolicy />
+                <SizeBasedTriggeringPolicy
+                        size="10 MB" />
+                <TimeBasedTriggeringPolicy />
+            </Policies>
+        </RollingFile>
 
     </Appenders>
     <Loggers>
-        <Root level="INFO" locationInfoEnabled="true">
+        <Root level="info">
             <AppenderRef ref="kafkaLogAppender"/>
-            <!--stdout/stderr included for testing Oozie log4j edits-->
+            <AppenderRef ref="kafkaErrorAppender"/>
             <AppenderRef ref="stdout"/>
+            <AppenderRef ref="RollingFile"/>
         </Root>
 
-        <Logger name="com.example.project_template" level="error" >
-            <AppenderRef ref="kafkaErrorAppender"/>
-            <AppenderRef ref="stderr"/>
-        </Logger>
 
         <Logger name="com.kss" level="trace" >
             <AppenderRef ref="kafkaAuditAppender"/>
-            <AppenderRef ref="stdout"/>
         </Logger>
 
     </Loggers>
